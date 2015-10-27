@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.34 in css mode. -->
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>streem.rb</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .comment {
+        /* font-lock-comment-face */
+        color: #b22222;
+        font-style: italic;
+      }
+      .comment-delimiter {
+        /* font-lock-comment-delimiter-face */
+        color: #b22222;
+        font-style: italic;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #0000cd;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #000080;
+        font-weight: bold;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #006400;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #00688b;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #000000;
+        font-style: italic;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre><span class="comment-delimiter"># </span><span class="comment">An implementation of Streem in Ruby
+</span><span class="comment-delimiter"># </span><span class="comment">H26.12/17 SUZUKI Hisao (suzuki611@oki.com, suzuki@acm.org)
+</span><span class="comment-delimiter"># </span><span class="comment">cf. https://github.com/matz/streem
+</span>
+<span class="comment-delimiter"># </span><span class="comment">seq(5) .| {|x| x + 10} | TO_ARRAY # =&gt; [11, 12, 13, 14, 15]
+</span>
+<span class="keyword">class</span> <span class="type">Streem</span>
+  include <span class="type">Enumerable</span>
+
+  <span class="keyword">def</span> <span class="function-name">|</span>(rhs=<span class="variable-name">nil</span>)
+    <span class="keyword">if</span> rhs.nil?
+      <span class="keyword">return</span> <span class="type">Iter</span>.new {|y|
+        each {|e|
+          y[<span class="keyword">yield</span> e]
+        }
+      }
+    <span class="keyword">else</span>
+      <span class="keyword">return</span> rhs[<span class="variable-name">self</span>]
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+<span class="keyword">class</span> <span class="type">Iter</span> &lt; <span class="type">Streem</span>
+  <span class="keyword">def</span> <span class="function-name">initialize</span>(&amp;block)
+    <span class="variable-name">@block</span> = block
+  <span class="keyword">end</span>
+
+  <span class="keyword">def</span> <span class="function-name">each</span>(&amp;y)
+    <span class="variable-name">@block</span>[y]
+    <span class="keyword">return</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+
+<span class="keyword">class</span> <span class="type">Seq</span> &lt; <span class="type">Streem</span>
+  <span class="keyword">def</span> <span class="function-name">initialize</span>(source)
+    <span class="keyword">case</span> source
+    <span class="keyword">when</span> <span class="type">Enumerable</span>
+      <span class="variable-name">@source</span> = source
+    <span class="keyword">when</span> <span class="type">Integer</span>
+      <span class="variable-name">@source</span> = 1..source
+    <span class="keyword">else</span>
+      <span class="keyword">raise</span> <span class="type">ArgumentError</span>.new(source)
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+
+  <span class="keyword">def</span> <span class="function-name">each</span>(&amp;y)
+    <span class="variable-name">@source</span>.each &amp;y
+    <span class="keyword">return</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">def</span> <span class="function-name">seq</span>(x)
+  <span class="keyword">return</span> <span class="type">Seq</span>.new(x)
+<span class="keyword">end</span>
+
+
+<span class="comment-delimiter"># </span><span class="comment">cf. https://github.com/matz/streem/issues/16
+</span><span class="keyword">def</span> <span class="function-name">zip</span>(a, b)                   <span class="comment-delimiter"># </span><span class="comment">=&gt; [a1, b1], [a2, b2], ..., [an, bn]
+</span>  <span class="keyword">return</span> <span class="type">Iter</span>.new {|y|
+    gen = b.to_enum
+    a.each {|ai|
+      <span class="keyword">begin</span>
+        bi = gen.next
+      <span class="keyword">rescue</span> <span class="type">StopIteration</span>
+        <span class="keyword">break</span>
+      <span class="keyword">end</span>
+      y[[ai, bi]]
+    }
+  }
+<span class="keyword">end</span>
+
+<span class="comment-delimiter"># </span><span class="comment">cf. https://github.com/matz/streem/issues/16
+</span><span class="keyword">def</span> <span class="function-name">cat</span>(a, b)                   <span class="comment-delimiter"># </span><span class="comment">=&gt; a1, a2, ..., an, b1, b2, ... bn
+</span>  <span class="keyword">return</span> <span class="type">Iter</span>.new {|y|
+    a.each {|e| y[e]}
+    b.each {|e| y[e]}
+  }
+<span class="keyword">end</span>
+
+
+<span class="type">TO_ARRAY</span> = -&gt;seq {              <span class="comment-delimiter"># </span><span class="comment">=&gt; [a1, a2, .., an]
+</span>  <span class="keyword">return</span> seq.to_a
+}
+
+<span class="type">STD_OUT</span> = -&gt;seq {
+  seq.each {|e|
+    printf(<span class="string">"%s\n"</span>, e)
+  }
+}
+
+<span class="type">STD_IN</span> = <span class="type">Iter</span>.new {|y|
+  <span class="keyword">while</span> line = <span class="type">ARGF</span>.gets
+    y[line]
+  <span class="keyword">end</span>
+}
+
+<span class="comment-delimiter"># </span><span class="comment">Copyright (c) 2014 OKI Software Co., Ltd.
+</span><span class="comment-delimiter"># </span><span class="comment">
+</span><span class="comment-delimiter"># </span><span class="comment">Permission is hereby granted, free of charge, to any person obtaining a
+</span><span class="comment-delimiter"># </span><span class="comment">copy of this software and associated documentation files (the "Software"),
+</span><span class="comment-delimiter"># </span><span class="comment">to deal in the Software without restriction, including without limitation
+</span><span class="comment-delimiter"># </span><span class="comment">the rights to use, copy, modify, merge, publish, distribute, sublicense,
+</span><span class="comment-delimiter"># </span><span class="comment">and/or sell copies of the Software, and to permit persons to whom the
+</span><span class="comment-delimiter"># </span><span class="comment">Software is furnished to do so, subject to the following conditions:
+</span><span class="comment-delimiter"># </span><span class="comment">
+</span><span class="comment-delimiter"># </span><span class="comment">The above copyright notice and this permission notice shall be included in
+</span><span class="comment-delimiter"># </span><span class="comment">all copies or substantial portions of the Software.
+</span><span class="comment-delimiter"># </span><span class="comment">
+</span><span class="comment-delimiter"># </span><span class="comment">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+</span><span class="comment-delimiter"># </span><span class="comment">IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+</span><span class="comment-delimiter"># </span><span class="comment">FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+</span><span class="comment-delimiter"># </span><span class="comment">THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+</span><span class="comment-delimiter"># </span><span class="comment">LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+</span><span class="comment-delimiter"># </span><span class="comment">FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+</span><span class="comment-delimiter"># </span><span class="comment">DEALINGS IN THE SOFTWARE.
+</span></pre>
+  
+
+</body></html>
