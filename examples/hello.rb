@@ -4,15 +4,15 @@ $: << File.expand_path('../../lib', __FILE__)
 
 require 'streem'
 
-def stdout
-  Streem::Pipe.new { |s| print "#{s}\n"; s }
-end
-
 instreem = Streem::Pipe.new
 
 instreem | ->(x) { print "foo\n"; x } | stdout
 
 instreem << 'Hello'
+
+stdin = Streem::Streemers::Stdin.new
+stdin | stdout
+stdin.streem
 
 #streem do
 #  stdin | stdout

@@ -1,11 +1,9 @@
 module Streem
   class Pipe
 
-    DEFAULT_ACTION = ->(s) { s }
-
     def initialize(&action)
       @outstreem = nil
-      @action = action || DEFAULT_ACTION
+      @action = action if block_given?
     end
 
     def terminal?
@@ -13,17 +11,20 @@ module Streem
     end
 
     def <<(data)
-      result = @action.call(data)
-      @outstreem << result if @outstreem
+      data = @action.call(data) if @action
+      @outstreem << data if @outstreem
     end
 
     def |(outstreem)
       raise RuntimeError.new('already connected') if @outstreem
+      raise RuntimeError.new('cannot connect a streemer') if outstreem.is_a?(Streem::Streemer)
+
       if outstreem.is_a?(Proc)
         @outstreem = Pipe.new(&outstreem)
       else
         @outstreem = outstreem
       end
+
       @outstreem
     end
   end

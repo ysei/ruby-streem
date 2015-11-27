@@ -3,7 +3,14 @@ require 'streem/pipe'
 module Streem
   class Streemer < Pipe
 
-    def start
+    def initialize
+      super(&:nil)
     end
+
+    def streem
+      raise NotImplementedError
+    end
+
+    private :<<
   end
 end

@@ -1,0 +1,1 @@
+require 'streem/streemers/stdin'
