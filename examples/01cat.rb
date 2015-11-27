@@ -1,5 +1,9 @@
-# most fundamental Streem program
+#!/usr/bin/env ruby
+$: << File.expand_path('../../lib', __FILE__)
 
+require 'streem'
+
+# most fundamental Streem program
 # build pipeline from stdin to stdout
 
 streem do

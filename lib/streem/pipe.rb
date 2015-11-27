@@ -19,13 +19,13 @@ module Streem
       raise RuntimeError.new('already connected') if @outstreem
       raise RuntimeError.new('cannot connect a streemer') if outstreem.is_a?(Streem::Streemer)
 
-      if outstreem.is_a?(Proc)
-        @outstreem = Pipe.new(&outstreem)
-      else
-        @outstreem = outstreem
-      end
+      @outstreem = factory(outstreem)
+    end
 
-      @outstreem
+    private
+
+    def factory(pipe)
+      pipe.is_a?(Proc) ? Pipe.new(&pipe) : pipe
     end
   end
 end
