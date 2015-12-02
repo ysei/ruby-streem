@@ -1,15 +1,20 @@
 # Streem
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/streem`. To experiment with that code, run `bin/console` for an interactive prompt.
+This is a pure-Ruby implementation of the [Streem programming language](https://github.com/matz/streem) being developed by Yukihiro "Matz" Matsumoto, creator of Ruby. It is a proof-of-concept of what his vision might look like were it implemented as a Ruby library. It is intended to give Streem enthusiasts an opportunity to experiment with the *ideas* behind Streem while the language itself is being developed.
 
-TODO: Delete this and the text above, and describe your gem
+*This library is not intended to compete with or be a replacement for Streem. It is solely intended as a temporary stand-in that will increase the community's ability to provide feedback into Streem's design.*
+
+Features of this library will closely mirror Streem and updates will be made as Streem evolves. Anyone interested in experimenting with Streem is encouraged to use this library and provide Matz feedback on [his issue page](https://github.com/matz/streem/issues).
+
 
 ## Installation
+
+**Note:** This gem hasn't been pushed to Rubygems yet. For now you'll have to run it from the GitHub repo.
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'streem'
+gem 'ruby-streem'
 ```
 
 And then execute:
@@ -18,17 +23,21 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install streem
+    $ gem install ruby-streem
 
 ## Usage
 
 TODO: Write usage instructions here
 
-## Development
+See the examples in the `examples` directory.
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```ruby
+#!/usr/bin/env ruby
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+require 'streem'
+
+stdin | stdout
+```
 
 ## Contributing
 
