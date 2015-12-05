@@ -29,7 +29,15 @@ module Streem
     end
 
     def streem
-      raise NotImplementedError
+      raise RuntimeError.new('not connected') unless @outstreem
+
+      begin
+        loop do
+          @outstreem << get_next_input
+        end
+      rescue *exit_exceptions
+        # exit gracefully
+      end
     end
 
     def shutdown
@@ -37,5 +45,15 @@ module Streem
     end
 
     private :<<
+
+    private
+
+    def exit_exceptions
+      []
+    end
+
+    def get_next_input
+      raise NotImplementedError
+    end
   end
 end

@@ -8,20 +8,18 @@ module Streem
         @closed = false
       end
 
-      def streem
-        raise RuntimeError.new('not connected') unless @outstreem
-
-        begin
-          loop do
-            @outstreem << $stdin.readline().strip
-          end
-        rescue IOError, EOFError
-          # exit gracefully
-        end
+      def exit_exceptions
+        [IOError, EOFError]
       end
 
       def shutdown
         $stdin.close_read
+      end
+
+      private
+
+      def get_next_input
+        $stdin.readline().strip
       end
     end
   end
