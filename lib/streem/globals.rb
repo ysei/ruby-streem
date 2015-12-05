@@ -1,0 +1,4 @@
+module Streem
+
+  STREEMERS = []
+end
